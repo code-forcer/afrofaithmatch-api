@@ -7,10 +7,17 @@ const {
   uploadPhoto,
   deletePhoto,
   setMainPhoto,
+  publicBrowseProfiles,
+  getPublicUserProfile,
 } = require("../controllers/usersController");
 const { protect } = require("../middleware/auth");
 const { uploadProfilePhoto } = require("../middleware/upload");
 
+// Public routes
+router.get("/public/browse", publicBrowseProfiles);
+router.get("/public/:id", getPublicUserProfile);
+
+// Protected routes
 router.get("/browse", protect, browseProfiles);
 router.get("/:id", protect, getUserProfile);
 router.put("/profile", protect, updateProfile);

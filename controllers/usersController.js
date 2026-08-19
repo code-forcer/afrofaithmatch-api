@@ -93,6 +93,60 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
+// ─── Public Browse profiles ────────────────────────────────────────
+exports.publicBrowseProfiles = async (req, res) => {
+  try {
+    const { page = 1, limit = 12 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const profiles = await Profile.find({})
+      .populate("userId", "name avatar lastActive isBanned") // No email!
+      .sort({ lastActive: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const filtered = profiles.filter(
+      (p) => p.userId && !p.userId.isBanned
+    );
+
+    const total = await Profile.countDocuments({});
+
+    res.json({
+      profiles: filtered,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
+      total,
+    });
+  } catch (err) {
+    console.error("Public Browse error:", err);
+    res.status(500).json({ error: "Failed to fetch public profiles." });
+  }
+};
+
+// ─── Get single user's public profile (unauthenticated) ─────────────
+exports.getPublicUserProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Do NOT include email or other sensitive fields
+    const user = await User.findById(id).select("name avatar lastActive isBanned createdAt");
+    if (!user || user.isBanned) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const profile = await Profile.findOne({ userId: id });
+    if (!profile) {
+      return res.status(404).json({ error: "Profile not found." });
+    }
+
+    Profile.findByIdAndUpdate(profile._id, { $inc: { profileViews: 1 } }).exec();
+
+    res.json({ user, profile });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch public profile." });
+  }
+};
+
 // ─── Update own profile ────────────────────────────────────────────
 exports.updateProfile = async (req, res) => {
   try {
