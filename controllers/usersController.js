@@ -151,6 +151,19 @@ exports.getPublicUserProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const allowedFields = [
+      "age",
+      "churchAndDenomination",
+      "activelyServing",
+      "favoriteBibleVerse",
+      "datingForMarriage",
+      "lifeCommitmentDate",
+      "christianValues",
+      "marriedBefore",
+      "countryOfOriginAndEthnicity",
+      "openToLongDistance",
+      "pastorObjection",
+      "videos",
+      "audios",
       "gender",
       "dateOfBirth",
       "country",

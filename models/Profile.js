@@ -25,6 +25,50 @@ const profileSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    age: {
+      type: Number,
+      default: null,
+    },
+    churchAndDenomination: {
+      type: String,
+      default: "",
+    },
+    activelyServing: {
+      type: String,
+      default: "",
+    },
+    favoriteBibleVerse: {
+      type: String,
+      default: "",
+    },
+    datingForMarriage: {
+      type: String,
+      default: "",
+    },
+    lifeCommitmentDate: {
+      type: String,
+      default: "",
+    },
+    christianValues: {
+      type: String,
+      default: "",
+    },
+    marriedBefore: {
+      type: String,
+      default: "",
+    },
+    countryOfOriginAndEthnicity: {
+      type: String,
+      default: "",
+    },
+    openToLongDistance: {
+      type: String,
+      default: "",
+    },
+    pastorObjection: {
+      type: String,
+      default: "",
+    },
     denomination: {
       type: String,
       enum: [
@@ -73,6 +117,18 @@ const profileSchema = new mongoose.Schema(
         url: String,
         publicId: String,
         isMain: { type: Boolean, default: false },
+      },
+    ],
+    videos: [
+      {
+        url: String,
+        publicId: String,
+      },
+    ],
+    audios: [
+      {
+        url: String,
+        publicId: String,
       },
     ],
     interests: [
@@ -134,8 +190,10 @@ const profileSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Virtual age field
-profileSchema.virtual("age").get(function () {
+// We had a virtual for age, but now we'll just use the age field if provided,
+// otherwise compute it from dateOfBirth if it exists.
+profileSchema.virtual("computedAge").get(function () {
+  if (this.age) return this.age;
   if (!this.dateOfBirth) return null;
   const today = new Date();
   const birth = new Date(this.dateOfBirth);
